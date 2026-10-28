@@ -1,17 +1,6 @@
-from dataclasses import dataclass
-from typing import Optional
+"""
+Backward compatibility layer. Re-exports domain models.
+"""
+from src.domain.models import ChunkMetadata, DocumentChunk
 
-
-@dataclass
-class ChunkMetadata:
-    """Metadata schema for ingested document chunks, tracking source and page."""
-    source_document: str
-    page_number: int
-
-
-@dataclass
-class DocumentChunk:
-    """Unified representation of an extracted chunk with text and metadata."""
-    text: str
-    metadata: ChunkMetadata
-    id: Optional[str] = None
+__all__ = ["ChunkMetadata", "DocumentChunk"]

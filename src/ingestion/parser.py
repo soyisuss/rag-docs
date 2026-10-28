@@ -1,113 +1,35 @@
+"""
+Backward compatibility layer. Re-exports parser utilities and CLI.
+"""
 from pathlib import Path
-from typing import List
-import uuid
-import pymupdf
+from typing import List, Union
 
-from src.ingestion.models import ChunkMetadata, DocumentChunk
+from src.domain.models import DocumentChunk
+from src.infrastructure.adapters.fitz_parser import (
+    FitzParserAdapter, 
+    split_text_into_chunks,
+)
 
-
-def split_text_into_chunks(
-    text: str, 
-    chunk_size: int = 1000, 
-    chunk_overlap: int = 150
-) -> List[str]:
-    """
-    Splits text into overlapping chunks, respecting paragraph and line breaks where possible.
-    """
-    cleaned_text = text.strip()
-    if not cleaned_text:
-        return []
-    
-    if len(cleaned_text) <= chunk_size:
-        return [cleaned_text]
-
-    chunks = []
-    start = 0
-    text_len = len(cleaned_text)
-
-    while start < text_len:
-        end = start + chunk_size
-        if end >= text_len:
-            chunk = cleaned_text[start:].strip()
-            if chunk:
-                chunks.append(chunk)
-            break
-
-        split_idx = cleaned_text.rfind("\n", start, end)
-        if split_idx == -1 or split_idx < start + (chunk_size // 2):
-            split_idx = cleaned_text.rfind(" ", start, end)
-        
-        if split_idx == -1 or split_idx <= start:
-            split_idx = end
-
-        chunk = cleaned_text[start:split_idx].strip()
-        if chunk:
-            chunks.append(chunk)
-
-        start = max(start + 1, split_idx - chunk_overlap)
-
-    return chunks
+_adapter = FitzParserAdapter()
 
 
 def extract_chunks_from_pdf(
-    file_path: str | Path,
+    file_path: Union[str, Path],
     chunk_size: int = 1000,
     chunk_overlap: int = 150,
 ) -> List[DocumentChunk]:
-    """
-    Parses a PDF file using PyMuPDF and produces DocumentChunks with exact page references.
-    """
-    path = Path(file_path)
-    if not path.is_file():
-        raise FileNotFoundError(f"PDF file not found: {path}")
-
-    doc = pymupdf.open(path)
-    extracted_chunks: List[DocumentChunk] = []
-
-    for page_idx, page in enumerate(doc):
-        page_number = page_idx + 1
-        page_text = page.get_text()
-        if not page_text or not page_text.strip():
-            continue
-
-        page_chunks = split_text_into_chunks(
-            page_text, 
-            chunk_size=chunk_size, 
-            chunk_overlap=chunk_overlap
-        )
-
-        for text_segment in page_chunks:
-            metadata = ChunkMetadata(
-                source_document=path.name,
-                page_number=page_number,
-            )
-            extracted_chunks.append(
-                DocumentChunk(
-                    id=str(uuid.uuid4()),
-                    text=text_segment,
-                    metadata=metadata,
-                )
-            )
-
-    doc.close()
-    return extracted_chunks
+    return _adapter.extract_chunks(file_path, chunk_size, chunk_overlap)
 
 
-def parse_directory(directory_path: str | Path) -> List[DocumentChunk]:
-    """
-    Scans a directory for all .pdf files and extracts DocumentChunks from each.
-    """
+def parse_directory(directory_path: Union[str, Path]) -> List[DocumentChunk]:
     dir_path = Path(directory_path)
     if not dir_path.is_dir():
         raise NotADirectoryError(f"Directory not found: {dir_path}")
 
     all_chunks: List[DocumentChunk] = []
     pdf_files = sorted(dir_path.glob("*.pdf"))
-
-    for pdf_file in pdf_files:
-        chunks = extract_chunks_from_pdf(pdf_file)
-        all_chunks.extend(chunks)
-
+    for pdf in pdf_files:
+        all_chunks.extend(extract_chunks_from_pdf(pdf))
     return all_chunks
 
 
