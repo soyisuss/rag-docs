@@ -5,9 +5,14 @@ import { api } from '../services/api';
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSwitchToLogin?: () => void;
 }
 
-export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
+export const RegisterModal: React.FC<RegisterModalProps> = ({ 
+  isOpen, 
+  onClose,
+  onSwitchToLogin,
+}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -127,23 +132,38 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose })
             />
           </div>
 
-          <div className="pt-2 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="px-4 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded-lg transition-colors"
-            >
-              Cerrar
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 text-xs font-medium text-zinc-950 bg-zinc-100 hover:bg-white rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 shadow-sm"
-            >
-              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              {loading ? 'Creando cuenta...' : 'Crear cuenta'}
-            </button>
+          <div className="pt-2 flex items-center justify-between">
+            {onSwitchToLogin ? (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onSwitchToLogin();
+                }}
+                className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
+              >
+                ¿Ya tienes cuenta? <span className="underline text-zinc-300 font-medium">Inicia sesión</span>
+              </button>
+            ) : <div />}
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={loading}
+                className="px-3.5 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded-lg transition-colors"
+              >
+                Cerrar
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 text-xs font-medium text-zinc-950 bg-zinc-100 hover:bg-white rounded-lg transition-colors flex items-center gap-1.5 disabled:opacity-50 shadow-sm"
+              >
+                {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+              </button>
+            </div>
           </div>
         </form>
       </div>

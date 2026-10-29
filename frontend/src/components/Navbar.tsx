@@ -1,9 +1,12 @@
 import React from 'react';
-import { PanelLeft, UserPlus } from 'lucide-react';
+import { PanelLeft, UserPlus, LogIn, User } from 'lucide-react';
+import { UserProfile } from '../types';
 
 interface NavbarProps {
   onToggleSidebar: () => void;
   onOpenRegister: () => void;
+  onOpenLogin: () => void;
+  currentUser: UserProfile | null;
   sidebarOpen: boolean;
   docCount: number;
   serverStatus: 'online' | 'offline' | 'checking';
@@ -12,6 +15,8 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   onToggleSidebar,
   onOpenRegister,
+  onOpenLogin,
+  currentUser,
   sidebarOpen,
   serverStatus,
 }) => {
@@ -44,14 +49,34 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="flex items-center gap-4 text-xs">
         {/* Subtle Status Telemetry */}
         <div className="flex items-center gap-2 text-zinc-400 text-xs">
-          <button
-            type="button"
-            onClick={onOpenRegister}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-200 hover:text-white transition-colors"
-          >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span>Registrarse</span>
-          </button>
+          {currentUser ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-[11px]">
+              <User className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="truncate max-w-[140px] sm:max-w-[200px]" title={currentUser.email}>
+                {currentUser.email}
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onOpenLogin}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-200 hover:text-white transition-colors"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Iniciar sesión</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onOpenRegister}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium transition-colors"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Registrarse</span>
+              </button>
+            </div>
+          )}
 
           <span
             className={`w-2 h-2 rounded-full transition-colors ${

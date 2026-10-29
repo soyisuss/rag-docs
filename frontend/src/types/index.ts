@@ -58,3 +58,14 @@ export interface RegisterResponse {
   id: number;
   email: string;
 }
+
+export interface UserProfile {
+  id: number;
+  email: string;
+}
+
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  user: UserProfile;
+}

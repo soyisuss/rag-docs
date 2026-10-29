@@ -4,7 +4,8 @@ import {
   UploadResponse, 
   DeleteResponse, 
   HealthResponse,
-  RegisterResponse
+  RegisterResponse,
+  LoginResponse
 } from '../types';
 
 const RAW_BASE_URL = import.meta.env.VITE_API_URL || '';
@@ -89,6 +90,22 @@ export const api = {
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: 'Error al procesar el registro' }));
       throw new Error(err.detail || 'Fallo en el registro de usuario');
+    }
+    return res.json();
+  },
+
+  async login(email: string, password: string): Promise<LoginResponse> {
+    const res = await fetch(`${BASE_URL}/api/v1/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Credenciales inválidas' }));
+      throw new Error(err.detail || 'Fallo al iniciar sesión');
     }
     return res.json();
   },

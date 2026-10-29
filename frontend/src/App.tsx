@@ -5,8 +5,9 @@ import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
 import { DeleteModal } from './components/DeleteModal';
 import { RegisterModal } from './components/RegisterModal';
+import { LoginModal } from './components/LoginModal';
 import { api } from './services/api';
-import { DocumentItem, ChatMessage } from './types';
+import { DocumentItem, ChatMessage, UserProfile } from './types';
 
 export const App: React.FC = () => {
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -21,8 +22,27 @@ export const App: React.FC = () => {
   // Toast Notification State
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  // Register Modal State
+  // Auth & Modal States
   const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
+  const [loginModalOpen, setLoginModalOpen] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
+    try {
+      const stored = localStorage.getItem('yael_user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const handleLoginSuccess = (user: UserProfile, token: string) => {
+    localStorage.setItem('yael_token', token);
+    localStorage.setItem('yael_user', JSON.stringify(user));
+    setCurrentUser(user);
+    setToast({
+      type: 'success',
+      message: `¡Bienvenido de nuevo, ${user.email}!`
+    });
+  };
 
   useEffect(() => {
     if (!toast) return;
@@ -156,6 +176,8 @@ export const App: React.FC = () => {
       <Navbar
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         onOpenRegister={() => setRegisterModalOpen(true)}
+        onOpenLogin={() => setLoginModalOpen(true)}
+        currentUser={currentUser}
         sidebarOpen={sidebarOpen}
         docCount={documents.length}
         serverStatus={serverStatus}
@@ -190,6 +212,14 @@ export const App: React.FC = () => {
       <RegisterModal
         isOpen={registerModalOpen}
         onClose={() => setRegisterModalOpen(false)}
+        onSwitchToLogin={() => setLoginModalOpen(true)}
+      />
+
+      <LoginModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        onSuccess={handleLoginSuccess}
+        onSwitchToRegister={() => setRegisterModalOpen(true)}
       />
 
       {/* Minimalist Floating Toast */}
