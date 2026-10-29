@@ -32,7 +32,11 @@ QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "documents")
 
 # RAG thresholds
 SIMILARITY_THRESHOLD = float(os.getenv("SIMILARITY_THRESHOLD", "0.70"))
-TOP_K_RESULTS = int(os.getenv("TOP_K_RESULTS", "3"))
+TOP_K_RESULTS = int(os.getenv("TOP_K_RESULTS", "5"))
+
+# Auth / JWT configuration
+JWT_SECRET = os.getenv("JWT_SECRET", "yael-bot-jwt-secret-key-change-in-production")
+JWT_ALGORITHM = "HS256"
 
 # Server configuration
 PORT = int(os.getenv("PORT", "8080"))

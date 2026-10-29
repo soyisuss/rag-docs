@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from src.presentation.schemas import ChatRequest, ChatResponse, CitationResponse
 from src.application.dtos import ChatRequestDTO
 from src.application.use_cases.ask_question import AskQuestionUseCase
-from src.presentation.dependencies import get_ask_question_use_case
+from src.presentation.dependencies import get_ask_question_use_case, get_current_user
 
 router = APIRouter(prefix="/api/chat", tags=["Chat"])
 
@@ -11,6 +11,7 @@ router = APIRouter(prefix="/api/chat", tags=["Chat"])
 def ask_chat(
     payload: ChatRequest,
     use_case: AskQuestionUseCase = Depends(get_ask_question_use_case),
+    current_user: dict = Depends(get_current_user),
 ) -> ChatResponse:
     dto = ChatRequestDTO(
         query=payload.query,

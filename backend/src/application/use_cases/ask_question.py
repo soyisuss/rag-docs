@@ -9,7 +9,7 @@ from src.domain.ports.llm import LLMPort
 logger = logging.getLogger(__name__)
 
 DEFAULT_SIMILARITY_THRESHOLD = 0.70
-DEFAULT_TOP_K = 3
+DEFAULT_TOP_K = 5
 
 
 class AskQuestionUseCase:
@@ -117,7 +117,7 @@ class AskQuestionUseCase:
             "1. Basa cada afirmación estrictamente en el contexto.\n"
             "2. Al final de cada dato o respuesta, incluye la cita exacta en formato: [Archivo, Página].\n"
             "3. Si existen discrepancias o contradicciones en el contexto entre documentos o versiones, expón ambas posturas indicando la fuente de cada una.\n"
-            "4. Si el contexto no contiene la respuesta completa, responde: 'INSUFFICIENT_INFORMATION'. No asumas información externa.\n\n"
+            "4. Si el contexto contiene información parcial, responde lo que se encuentre explícito citando la fuente y aclara con precisión qué detalle adicional no aparece. Solo si el contexto no contiene información relevante para la consulta, responde: 'INSUFFICIENT_INFORMATION'.\n\n"
             f"Contexto:\n{context_str}\n\n"
             f"Consulta del usuario:\n{query}\n\n"
             "Respuesta:"

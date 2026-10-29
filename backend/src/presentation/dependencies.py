@@ -1,5 +1,9 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Optional, Dict, Any
+import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from src.infrastructure import config
 from src.domain.ports.vector_store import VectorStorePort
@@ -85,3 +89,36 @@ def get_list_use_case() -> ListDocumentsUseCase:
         vector_store=get_vector_store(),
         data_dir=get_data_dir(),
     )
+
+
+security = HTTPBearer(auto_error=False)
+
+
+def get_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
+) -> Dict[str, Any]:
+    if not credentials or not credentials.credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Autenticación requerida. Por favor, inicia sesión.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    try:
+        payload = jwt.decode(
+            credentials.credentials,
+            config.JWT_SECRET,
+            algorithms=[config.JWT_ALGORITHM],
+        )
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="La sesión ha expirado. Por favor, inicia sesión nuevamente.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except jwt.PyJWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token de acceso inválido.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )

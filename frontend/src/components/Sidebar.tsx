@@ -15,6 +15,8 @@ import { DocumentItem } from '../types';
 interface SidebarProps {
   documents: DocumentItem[];
   isLoading: boolean;
+  isAuthenticated: boolean;
+  onRequireLogin?: () => void;
   onRefresh: () => void;
   onUpload: (files: File[]) => Promise<void>;
   onSelectDelete: (docName: string) => void;
@@ -24,6 +26,8 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({
   documents,
   isLoading,
+  isAuthenticated,
+  onRequireLogin,
   onRefresh,
   onUpload,
   onSelectDelete,
@@ -40,6 +44,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
 
   const handleFiles = async (files: FileList | null) => {
+    if (!isAuthenticated) {
+      onRequireLogin?.();
+      return;
+    }
     if (!files || files.length === 0) return;
 
     const pdfFiles: File[] = [];
@@ -138,7 +146,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  onRequireLogin?.();
+                } else {
+                  fileInputRef.current?.click();
+                }
+              }}
               disabled={isUploading}
               className="p-1 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900 transition-colors disabled:opacity-40 focus:outline-none focus:ring-1 focus:ring-zinc-600"
               title="Cargar nuevo PDF"
@@ -209,7 +223,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="p-3 border-t border-zinc-800/80 bg-zinc-950">
         <button
           type="button"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => {
+            if (!isAuthenticated) {
+              onRequireLogin?.();
+            } else {
+              fileInputRef.current?.click();
+            }
+          }}
           disabled={isUploading}
           className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-zinc-800 hover:border-zinc-700 bg-zinc-900/60 hover:bg-zinc-900 text-xs font-medium text-zinc-300 hover:text-zinc-100 transition-colors disabled:opacity-50"
         >

@@ -63,29 +63,47 @@ class QdrantStoreAdapter(VectorStorePort):
     def search_similar(
         self, 
         vector: List[float], 
-        limit: int = 3
+        limit: int = 5
     ) -> List[Tuple[DocumentChunk, float]]:
         if not self.client.collection_exists(collection_name=self.collection_name):
             return []
 
+        # Solicitamos un margen más amplio para filtrar duplicados
+        fetch_limit = max(limit * 3, 15)
         response = self.client.query_points(
             collection_name=self.collection_name,
             query=vector,
-            limit=limit,
+            limit=fetch_limit,
         )
 
         results: List[Tuple[DocumentChunk, float]] = []
+        seen_signatures = set()
+
         for point in response.points:
             payload = point.payload or {}
+            raw_text = (payload.get("text") or "").strip()
+            doc_name = payload.get("source_document", "Desconocido")
+            page_num = payload.get("page_number", 0)
+
+            # Firma para deduplicación: documento, página y primeros 50 caracteres normalizados
+            normalized_snippet = " ".join(raw_text.split()[:15])
+            signature = (doc_name, page_num, normalized_snippet)
+
+            if signature in seen_signatures:
+                continue
+            seen_signatures.add(signature)
+
             chunk = DocumentChunk(
                 id=str(point.id),
-                text=payload.get("text", ""),
+                text=raw_text,
                 metadata=ChunkMetadata(
-                    source_document=payload.get("source_document", "Desconocido"),
-                    page_number=payload.get("page_number", 0),
+                    source_document=doc_name,
+                    page_number=page_num,
                 )
             )
             results.append((chunk, float(point.score)))
+            if len(results) >= limit:
+                break
 
         return results
 

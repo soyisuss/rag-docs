@@ -5,11 +5,9 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 import bcrypt
 from src.infrastructure.database import get_db_pool
+from src.infrastructure.config import JWT_SECRET, JWT_ALGORITHM
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
-
-JWT_SECRET = os.getenv("JWT_SECRET", "yael-bot-jwt-secret-key-change-in-production")
-JWT_ALGORITHM = "HS256"
 
 
 class RegisterRequest(BaseModel):

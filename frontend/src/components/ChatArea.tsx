@@ -6,7 +6,9 @@ import {
   Clock,
   Copy,
   Check,
-  AlertCircle
+  AlertCircle,
+  Lock,
+  LogIn
 } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { CitationCard } from './CitationCard';
@@ -14,6 +16,8 @@ import { CitationCard } from './CitationCard';
 interface ChatAreaProps {
   messages: ChatMessage[];
   isLoading: boolean;
+  isAuthenticated: boolean;
+  onRequireLogin: () => void;
   onSendMessage: (query: string) => void;
   onClearChat: () => void;
 }
@@ -28,6 +32,8 @@ const SAMPLE_QUESTIONS = [
 export const ChatArea: React.FC<ChatAreaProps> = ({
   messages,
   isLoading,
+  isAuthenticated,
+  onRequireLogin,
   onSendMessage,
   onClearChat,
 }) => {
@@ -46,6 +52,10 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
 
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (!isAuthenticated) {
+      onRequireLogin();
+      return;
+    }
     if (!inputQuery.trim() || isLoading) return;
 
     onSendMessage(inputQuery.trim());
@@ -102,32 +112,58 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
         {messages.length === 0 ? (
           <div className="max-w-xl mx-auto py-16 px-4 text-center space-y-6 animate-fadeIn">
-            <div className="space-y-2">
-              <h2 className="text-lg font-semibold text-zinc-100 tracking-tight">
-                Consulta tus documentos
-              </h2>
-              <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
-                Obtén respuestas verificadas con citas exactas por página a partir de los archivos PDF cargados.
-              </p>
-            </div>
+            {!isAuthenticated ? (
+              <div className="p-6 rounded-xl bg-zinc-900 border border-zinc-800 text-center space-y-4 max-w-md mx-auto shadow-xl">
+                <div className="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-100 mx-auto">
+                  <Lock className="w-5 h-5 text-amber-400" />
+                </div>
+                <div className="space-y-1.5">
+                  <h3 className="text-sm font-semibold text-zinc-100">Autenticación requerida</h3>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Para interactuar con Yael Bot, cargar archivos y consultar información fundamentada en los documentos, debes iniciar sesión en tu cuenta.
+                  </p>
+                </div>
+                <div className="pt-2 flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={onRequireLogin}
+                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-zinc-950 bg-zinc-100 hover:bg-white rounded-lg transition-colors shadow-sm"
+                  >
+                    <LogIn className="w-3.5 h-3.5" />
+                    <span>Iniciar sesión</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <h2 className="text-lg font-semibold text-zinc-100 tracking-tight">
+                    Consulta tus documentos
+                  </h2>
+                  <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+                    Obtén respuestas verificadas con citas exactas por página a partir de los archivos PDF cargados.
+                  </p>
+                </div>
 
-            {/* Quick prompts */}
-            <div className="pt-2 max-w-md mx-auto space-y-2">
-              {SAMPLE_QUESTIONS.map((q, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    setInputQuery(q);
-                    onSendMessage(q);
-                  }}
-                  className="w-full p-2.5 rounded-lg bg-zinc-900/60 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 text-xs text-zinc-300 hover:text-zinc-100 transition-colors text-left flex items-center justify-between group focus:outline-none focus:ring-1 focus:ring-zinc-600"
-                >
-                  <span className="truncate">{q}</span>
-                  <span className="text-zinc-400 group-hover:text-zinc-200 text-[10px] font-mono ml-2">↵</span>
-                </button>
-              ))}
-            </div>
+                {/* Quick prompts */}
+                <div className="pt-2 max-w-md mx-auto space-y-2">
+                  {SAMPLE_QUESTIONS.map((q, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setInputQuery(q);
+                        onSendMessage(q);
+                      }}
+                      className="w-full p-2.5 rounded-lg bg-zinc-900/60 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 text-xs text-zinc-300 hover:text-zinc-100 transition-colors text-left flex items-center justify-between group focus:outline-none focus:ring-1 focus:ring-zinc-600"
+                    >
+                      <span className="truncate">{q}</span>
+                      <span className="text-zinc-400 group-hover:text-zinc-200 text-[10px] font-mono ml-2">↵</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         ) : (
           messages.map((msg) => (
@@ -187,7 +223,13 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
 
                   {/* Prose Content */}
                   <div className="prose prose-invert prose-xs max-w-none space-y-2 text-zinc-200 leading-relaxed font-sans">
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    {msg.content.trim() === 'INSUFFICIENT_INFORMATION' ? (
+                      <p className="text-zinc-400 italic">
+                        No se encontró información suficiente en los fragmentos de los documentos para responder a esta pregunta de forma concluyente. Revisa las citas anexas o intenta reformular con términos más específicos.
+                      </p>
+                    ) : (
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    )}
                   </div>
 
                   {/* Sources List */}
@@ -238,7 +280,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               value={inputQuery}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder="Haz una pregunta sobre tus documentos..."
+              placeholder={isAuthenticated ? "Haz una pregunta sobre tus documentos..." : "Inicia sesión para realizar preguntas..."}
               aria-label="Haz una pregunta sobre tus documentos"
               disabled={isLoading}
               className="flex-1 bg-transparent border-none text-xs text-zinc-100 placeholder-zinc-400 focus:outline-none resize-none max-h-32 disabled:opacity-40"

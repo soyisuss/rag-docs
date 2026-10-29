@@ -17,6 +17,7 @@ from src.presentation.dependencies import (
     get_ingest_use_case,
     get_delete_use_case,
     get_data_dir,
+    get_current_user,
 )
 
 router = APIRouter(prefix="/api/documents", tags=["Documents"])
@@ -25,6 +26,7 @@ router = APIRouter(prefix="/api/documents", tags=["Documents"])
 @router.get("", response_model=DocumentListResponse)
 def list_documents(
     use_case: ListDocumentsUseCase = Depends(get_list_use_case),
+    current_user: dict = Depends(get_current_user),
 ) -> DocumentListResponse:
     docs = use_case.execute()
     return DocumentListResponse(
@@ -45,6 +47,7 @@ def upload_documents(
     files: List[UploadFile] = File(...),
     ingest_use_case: IngestDocumentUseCase = Depends(get_ingest_use_case),
     data_dir: Path = Depends(get_data_dir),
+    current_user: dict = Depends(get_current_user),
 ) -> UploadResponse:
     if not files:
         raise HTTPException(status_code=400, detail="No se enviaron archivos para procesar.")
@@ -82,6 +85,7 @@ def upload_documents(
 def delete_document(
     doc_name: str,
     delete_use_case: DeleteDocumentUseCase = Depends(get_delete_use_case),
+    current_user: dict = Depends(get_current_user),
 ) -> DeleteResponse:
     success = delete_use_case.execute(doc_name)
     return DeleteResponse(

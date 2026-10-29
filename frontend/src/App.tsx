@@ -83,11 +83,19 @@ export const App: React.FC = () => {
       await api.getHealth();
       setServerStatus('online');
 
-      const docsData = await api.getDocuments();
-      setDocuments(docsData.documents);
-    } catch (err) {
+      if (currentUser) {
+        const docsData = await api.getDocuments();
+        setDocuments(docsData.documents);
+      } else {
+        setDocuments([]);
+      }
+    } catch (err: any) {
       console.error('Connection error:', err);
-      setServerStatus('offline');
+      if (err?.message?.includes('401') || err?.message?.includes('Autenticación')) {
+        handleLogout();
+      } else {
+        setServerStatus('offline');
+      }
     } finally {
       setIsLoadingDocs(false);
     }
@@ -95,20 +103,49 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     loadInitialData();
-  }, []);
+  }, [currentUser]);
 
   // Handlers
   const handleUpload = async (files: File[]) => {
-    await api.uploadDocuments(files);
-    const docsData = await api.getDocuments();
-    setDocuments(docsData.documents);
-    setToast({
-      type: 'success',
-      message: `${files.length} documento(s) indexado(s).`
-    });
+    if (!currentUser) {
+      setToast({
+        type: 'error',
+        message: 'Debes iniciar sesión para cargar documentos.'
+      });
+      setLoginModalOpen(true);
+      return;
+    }
+
+    try {
+      await api.uploadDocuments(files);
+      const docsData = await api.getDocuments();
+      setDocuments(docsData.documents);
+      setToast({
+        type: 'success',
+        message: `${files.length} documento(s) indexado(s).`
+      });
+    } catch (err: any) {
+      if (err?.message?.includes('401')) {
+        handleLogout();
+        setLoginModalOpen(true);
+      } else {
+        setToast({
+          type: 'error',
+          message: err.message || 'Error al subir documentos.'
+        });
+      }
+    }
   };
 
   const handleOpenDelete = (docName: string) => {
+    if (!currentUser) {
+      setToast({
+        type: 'error',
+        message: 'Debes iniciar sesión para gestionar documentos.'
+      });
+      setLoginModalOpen(true);
+      return;
+    }
     setDeleteModal({
       isOpen: true,
       docName,
@@ -130,15 +167,29 @@ export const App: React.FC = () => {
         message: `"${docToDelete}" eliminado correctamente.`
       });
     } catch (err: any) {
-      setToast({
-        type: 'error',
-        message: `Error al eliminar: ${err.message || 'Error del servidor'}`
-      });
+      if (err?.message?.includes('401')) {
+        handleLogout();
+        setLoginModalOpen(true);
+      } else {
+        setToast({
+          type: 'error',
+          message: `Error al eliminar: ${err.message || 'Error del servidor'}`
+        });
+      }
       setDeleteModal(prev => ({ ...prev, isDeleting: false }));
     }
   };
 
   const handleSendMessage = async (queryText: string) => {
+    if (!currentUser) {
+      setToast({
+        type: 'error',
+        message: 'Debes iniciar sesión para realizar consultas.'
+      });
+      setLoginModalOpen(true);
+      return;
+    }
+
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -161,9 +212,13 @@ export const App: React.FC = () => {
         sources: response.sources,
         timestamp: new Date(),
       };
-
       setMessages(prev => [...prev, assistantMsg]);
     } catch (err: any) {
+      if (err?.message?.includes('401')) {
+        handleLogout();
+        setLoginModalOpen(true);
+        return;
+      }
       const errorMsg: ChatMessage = {
         id: `assistant-err-${Date.now()}`,
         role: 'assistant',
@@ -203,6 +258,8 @@ export const App: React.FC = () => {
         <Sidebar
           documents={documents}
           isLoading={isLoadingDocs}
+          isAuthenticated={!!currentUser}
+          onRequireLogin={() => setLoginModalOpen(true)}
           onRefresh={loadInitialData}
           onUpload={handleUpload}
           onSelectDelete={handleOpenDelete}
@@ -212,6 +269,8 @@ export const App: React.FC = () => {
         <ChatArea
           messages={messages}
           isLoading={isQuerying}
+          isAuthenticated={!!currentUser}
+          onRequireLogin={() => setLoginModalOpen(true)}
           onSendMessage={handleSendMessage}
           onClearChat={handleClearChat}
         />

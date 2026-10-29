@@ -11,6 +11,11 @@ import {
 const RAW_BASE_URL = import.meta.env.VITE_API_URL || '';
 const BASE_URL = RAW_BASE_URL.replace(/\/+$/, '');
 
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem('yael_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export const api = {
   async getHealth(): Promise<HealthResponse> {
     const res = await fetch(`${BASE_URL}/api/health`);
@@ -19,7 +24,11 @@ export const api = {
   },
 
   async getDocuments(): Promise<DocumentListResponse> {
-    const res = await fetch(`${BASE_URL}/api/documents`);
+    const res = await fetch(`${BASE_URL}/api/documents`, {
+      headers: {
+        ...getAuthHeaders(),
+      },
+    });
     if (!res.ok) throw new Error(`Error ${res.status}: Fallo al obtener los documentos`);
     return res.json();
   },
@@ -32,6 +41,9 @@ export const api = {
 
     const res = await fetch(`${BASE_URL}/api/documents/upload`, {
       method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+      },
       body: formData,
     });
 
@@ -45,6 +57,9 @@ export const api = {
   async deleteDocument(docName: string): Promise<DeleteResponse> {
     const res = await fetch(`${BASE_URL}/api/documents/${encodeURIComponent(docName)}`, {
       method: 'DELETE',
+      headers: {
+        ...getAuthHeaders(),
+      },
     });
 
     if (!res.ok) {
@@ -63,6 +78,7 @@ export const api = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...getAuthHeaders(),
       },
       body: JSON.stringify({
         query,
