@@ -132,4 +132,14 @@ async def test_login_user_invalid_payload():
         assert empty_pwd_resp.status_code == 422
 
 
+@pytest.mark.anyio
+async def test_logout_endpoint_success():
+    app = create_app()
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/api/v1/auth/logout")
+        assert response.status_code == 200
+        assert "Sesión cerrada exitosamente" in response.json().get("message", "")
+
+
+
 

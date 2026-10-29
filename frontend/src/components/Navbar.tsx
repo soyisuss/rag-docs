@@ -1,11 +1,12 @@
 import React from 'react';
-import { PanelLeft, UserPlus, LogIn, User } from 'lucide-react';
+import { PanelLeft, UserPlus, LogIn, User, LogOut } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface NavbarProps {
   onToggleSidebar: () => void;
   onOpenRegister: () => void;
   onOpenLogin: () => void;
+  onLogout: () => void;
   currentUser: UserProfile | null;
   sidebarOpen: boolean;
   docCount: number;
@@ -16,6 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleSidebar,
   onOpenRegister,
   onOpenLogin,
+  onLogout,
   currentUser,
   sidebarOpen,
   serverStatus,
@@ -50,11 +52,22 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Subtle Status Telemetry */}
         <div className="flex items-center gap-2 text-zinc-400 text-xs">
           {currentUser ? (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-[11px]">
-              <User className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="truncate max-w-[140px] sm:max-w-[200px]" title={currentUser.email}>
-                {currentUser.email}
-              </span>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-[11px]">
+                <User className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="truncate max-w-[140px] sm:max-w-[200px]" title={currentUser.email}>
+                  {currentUser.email}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={onLogout}
+                title="Cerrar sesión"
+                aria-label="Cerrar sesión"
+                className="p-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-red-400 hover:bg-zinc-800 transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">

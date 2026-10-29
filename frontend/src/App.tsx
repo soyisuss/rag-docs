@@ -44,6 +44,21 @@ export const App: React.FC = () => {
     });
   };
 
+  const handleLogout = async () => {
+    try {
+      await api.logout();
+    } catch {
+      // Ignorar errores de red en logout
+    }
+    localStorage.removeItem('yael_token');
+    localStorage.removeItem('yael_user');
+    setCurrentUser(null);
+    setToast({
+      type: 'success',
+      message: 'Sesión cerrada correctamente.'
+    });
+  };
+
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(null), 5000);
@@ -177,6 +192,7 @@ export const App: React.FC = () => {
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         onOpenRegister={() => setRegisterModalOpen(true)}
         onOpenLogin={() => setLoginModalOpen(true)}
+        onLogout={handleLogout}
         currentUser={currentUser}
         sidebarOpen={sidebarOpen}
         docCount={documents.length}

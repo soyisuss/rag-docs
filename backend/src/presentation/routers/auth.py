@@ -81,3 +81,8 @@ async def login(payload: LoginRequest):
             token_type="bearer",
             user=UserResponse(id=row["id"], email=row["email"]),
         )
+
+
+@router.post("/logout")
+async def logout():
+    return {"message": "Sesión cerrada exitosamente"}

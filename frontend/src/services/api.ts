@@ -109,4 +109,11 @@ export const api = {
     }
     return res.json();
   },
+
+  async logout(): Promise<{ message: string }> {
+    const res = await fetch(`${BASE_URL}/api/v1/auth/logout`, {
+      method: 'POST',
+    });
+    return res.json().catch(() => ({ message: 'Sesión cerrada' }));
+  },
 };
