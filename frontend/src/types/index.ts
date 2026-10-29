@@ -53,3 +53,8 @@ export interface ChatMessage {
   sources?: Citation[];
   timestamp: Date;
 }
+
+export interface RegisterResponse {
+  id: number;
+  email: string;
+}

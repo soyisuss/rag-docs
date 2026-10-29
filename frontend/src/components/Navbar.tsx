@@ -1,8 +1,9 @@
 import React from 'react';
-import { PanelLeft } from 'lucide-react';
+import { PanelLeft, UserPlus } from 'lucide-react';
 
 interface NavbarProps {
   onToggleSidebar: () => void;
+  onOpenRegister: () => void;
   sidebarOpen: boolean;
   docCount: number;
   serverStatus: 'online' | 'offline' | 'checking';
@@ -10,6 +11,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({
   onToggleSidebar,
+  onOpenRegister,
   sidebarOpen,
   serverStatus,
 }) => {
@@ -42,6 +44,15 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="flex items-center gap-4 text-xs">
         {/* Subtle Status Telemetry */}
         <div className="flex items-center gap-2 text-zinc-400 text-xs">
+          <button
+            type="button"
+            onClick={onOpenRegister}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-200 hover:text-white transition-colors"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>Registrarse</span>
+          </button>
+
           <span
             className={`w-2 h-2 rounded-full transition-colors ${
               serverStatus === 'online'

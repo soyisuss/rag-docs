@@ -3,10 +3,12 @@ import {
   DocumentListResponse, 
   UploadResponse, 
   DeleteResponse, 
-  HealthResponse 
+  HealthResponse,
+  RegisterResponse
 } from '../types';
 
-const BASE_URL = import.meta.env.VITE_API_URL || '';
+const RAW_BASE_URL = import.meta.env.VITE_API_URL || '';
+const BASE_URL = RAW_BASE_URL.replace(/\/+$/, '');
 
 export const api = {
   async getHealth(): Promise<HealthResponse> {
@@ -71,6 +73,22 @@ export const api = {
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: 'Error al consultar el chat' }));
       throw new Error(err.detail || 'Fallo en la consulta RAG');
+    }
+    return res.json();
+  },
+
+  async register(email: string, password: string): Promise<RegisterResponse> {
+    const res = await fetch(`${BASE_URL}/api/v1/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Error al procesar el registro' }));
+      throw new Error(err.detail || 'Fallo en el registro de usuario');
     }
     return res.json();
   },

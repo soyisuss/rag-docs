@@ -4,6 +4,7 @@ import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
 import { DeleteModal } from './components/DeleteModal';
+import { RegisterModal } from './components/RegisterModal';
 import { api } from './services/api';
 import { DocumentItem, ChatMessage } from './types';
 
@@ -19,6 +20,9 @@ export const App: React.FC = () => {
 
   // Toast Notification State
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Register Modal State
+  const [registerModalOpen, setRegisterModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (!toast) return;
@@ -151,6 +155,7 @@ export const App: React.FC = () => {
     <div className="flex flex-col h-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
       <Navbar
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        onOpenRegister={() => setRegisterModalOpen(true)}
         sidebarOpen={sidebarOpen}
         docCount={documents.length}
         serverStatus={serverStatus}
@@ -180,6 +185,11 @@ export const App: React.FC = () => {
         isDeleting={deleteModal.isDeleting}
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteModal({ isOpen: false, docName: '', isDeleting: false })}
+      />
+
+      <RegisterModal
+        isOpen={registerModalOpen}
+        onClose={() => setRegisterModalOpen(false)}
       />
 
       {/* Minimalist Floating Toast */}
