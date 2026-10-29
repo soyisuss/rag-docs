@@ -5,8 +5,11 @@ description = "Yael Bot - Intelligent Document RAG Assistant"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "asyncpg>=0.30.0",
+    "bcrypt>=4.0.0",
     "fastapi>=0.162.0",
     "google-genai>=1.0.0",
+    "pyjwt>=2.8.0",
     "pymupdf>=1.25.0",
     "python-dotenv>=1.0.0",
     "python-multipart>=0.0.32",

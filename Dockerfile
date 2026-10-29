@@ -2,7 +2,7 @@
 # Servidor FastAPI (Google Cloud Run)
 # Frontend desacoplado alojado en Cloudflare Pages
 # ============================================================
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # Instalar uv para instalación rápida y determinista de dependencias
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
