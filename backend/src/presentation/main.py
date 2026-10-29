@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse
 from src.infrastructure import config
 from src.presentation.routers.chat import router as chat_router
 from src.presentation.routers.documents import router as documents_router
+from src.presentation.routers.auth import router as auth_router
 from src.presentation.schemas import HealthResponse
 
 
@@ -20,10 +21,11 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
     )
 
-    # Enable CORS for frontend development and production
+    # Enable CORS for frontend development and Cloudflare Pages
+    allow_origins = config.CORS_ORIGINS if config.CORS_ORIGINS else ["*"]
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=allow_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -42,6 +44,7 @@ def create_app() -> FastAPI:
     # API Routers
     app.include_router(chat_router)
     app.include_router(documents_router)
+    app.include_router(auth_router)
 
     # Mount static frontend build if it exists (for unified Cloud Run deployment)
     dist_path = config.FRONTEND_DIST_DIR

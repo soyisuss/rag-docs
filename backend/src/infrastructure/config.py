@@ -37,3 +37,10 @@ TOP_K_RESULTS = int(os.getenv("TOP_K_RESULTS", "3"))
 # Server configuration
 PORT = int(os.getenv("PORT", "8080"))
 HOST = os.getenv("HOST", "0.0.0.0")
+
+# CORS configuration (comma-separated origins or * for open access)
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", "*").split(",")
+    if origin.strip()
+]

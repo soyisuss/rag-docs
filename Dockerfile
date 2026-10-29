@@ -1,26 +1,10 @@
 # ============================================================
-# ETAPA 1: Construcción del Frontend (React + TypeScript con Vite)
-# ============================================================
-FROM node:20-alpine AS frontend-builder
-
-WORKDIR /app/frontend
-
-# Copiar manifiesto de dependencias para optimizar caché de capas Docker
-COPY frontend/package.json frontend/package-lock.json* ./
-
-RUN npm install
-
-# Copiar código fuente del frontend y compilar bundle de producción
-COPY frontend/ ./
-RUN npm run build
-
-
-# ============================================================
-# ETAPA 2: Imagen Final del Servidor (FastAPI + Clean Architecture)
+# Servidor FastAPI (Google Cloud Run)
+# Frontend desacoplado alojado en Cloudflare Pages
 # ============================================================
 FROM python:3.11-slim
 
-# Instalar uv para una instalación reproducible y ultra-rápida de dependencias
+# Instalar uv para instalación rápida y determinista de dependencias
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Variables de entorno para ejecución sin buffer y configuración de red
@@ -40,10 +24,7 @@ COPY backend/src/ ./src/
 COPY backend/data/ ./data/
 COPY README.md /app/README.md
 
-# Copiar bundle estático del frontend compilado en la Etapa 1
-COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
-
-# Puerto expuesto para Google Cloud Run y ejecución local
+# Puerto expuesto para Google Cloud Run
 EXPOSE 8080
 
 # Healthcheck nativo consultando el endpoint FastAPI
