@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-28T18:48:00Z",
+  "title": "Design System: Yael",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Monolith White",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#18181b", "#27272a", "#3f3f46", "#71717a", "#a1a1aa", "#d4d4d8", "#e4e4e7", "#ffffff"]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Zinc Surface",
+        "canonical": "#18181b",
+        "tonalRamp": ["#09090b", "#18181b", "#27272a", "#3f3f46", "#52525b", "#71717a", "#a1a1aa", "#fafafa"]
+      },
+      "bg-canvas": {
+        "role": "neutral",
+        "displayName": "Obsidian Zinc Canvas",
+        "canonical": "#09090b",
+        "tonalRamp": ["#09090b", "#18181b", "#27272a", "#3f3f46", "#52525b", "#71717a", "#a1a1aa", "#fafafa"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Headers and greeting titles." },
+      "headline": { "displayName": "Headline", "purpose": "Logo and view headings." },
+      "body": { "displayName": "Body", "purpose": "Verified answers and extracts." },
+      "label": { "displayName": "Label / Monospace", "purpose": "Page numbers and similarity percentages." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Subtle UI transitions." },
+      { "name": "duration-fast", "value": "150ms", "purpose": "State changes." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Corporate Monolith Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "High-contrast action button in solid white on deep zinc.",
+      "html": "<button class=\"ds-btn-corp\"><span>Enviar</span></button>",
+      "css": ".ds-btn-corp { display: inline-flex; align-items: center; justify-content: center; background-color: #ffffff; color: #09090b; font-family: Inter, system-ui, sans-serif; font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer; transition: background-color 150ms ease; } .ds-btn-corp:hover { background-color: #f4f4f5; }"
+    },
+    {
+      "name": "Minimalist Citation Card",
+      "kind": "card",
+      "refersTo": "card-citation",
+      "description": "Sleek, unobtrusive citation chip with high-contrast metadata.",
+      "html": "<div class=\"ds-citation\"><div class=\"ds-meta\"><span class=\"ds-name\">Contrato_Marco_2026.pdf</span><span class=\"ds-page\">Pág. 3</span></div><span class=\"ds-score\">94%</span></div>",
+      "css": ".ds-citation { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background-color: rgba(24, 24, 27, 0.6); border: 1px solid #27272a; border-radius: 6px; font-family: Inter, system-ui, sans-serif; } .ds-meta { display: flex; align-items: center; gap: 8px; min-width: 0; } .ds-name { color: #f4f4f5; font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-page { color: #a1a1aa; font-family: monospace; font-size: 11px; } .ds-score { color: #a1a1aa; font-family: monospace; font-size: 11px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Executive Dossier",
+    "overview": "Yael's interface is an uncompromising corporate minimalist workspace designed for executives, analysts, and enterprise teams. It eliminates all decorative clutter, visual noise, unnecessary badges, and colorful gradients in favor of structural clarity, generous breathing room, and immaculate typography.",
+    "keyCharacteristics": [
+      "Deep Zinc canvas (#09090b) with hairline architectural dividers (#27272a).",
+      "Maximum text contrast: pure #fafafa headings (21:1 contrast ratio) and #a1a1aa secondary copy (7.5:1 ratio).",
+      "Complete elimination of extraneous chrome badges and colorful clutter.",
+      "Compact, quiet citation chips showing only document title, page number, and verified excerpts.",
+      "Monolith high-contrast primary controls (solid white on dark zinc)."
+    ],
+    "rules": [
+      {
+        "name": "The Essential Information Doctrine",
+        "body": "If an interface element merely documents an internal technology name without affecting user action, it is deleted from the screen.",
+        "section": "overview"
+      },
+      {
+        "name": "The High-Contrast Floor",
+        "body": "All body and interaction text must achieve at least 7.0:1 contrast against its immediate surface.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do preserve the deep zinc palette (#09090b) with white (#fafafa) text for maximum contrast.",
+      "Do keep persistent chrome free of unnecessary badges and tech jargon.",
+      "Do present citations as compact, expandable references."
+    ],
+    "donts": [
+      "Don't add decorative gradients, colored glows, or heavy drop shadows.",
+      "Don't clutter the header with redundant model or infrastructure names.",
+      "Don't use low-contrast text below WCAG AAA (7:1)."
+    ]
+  }
+}

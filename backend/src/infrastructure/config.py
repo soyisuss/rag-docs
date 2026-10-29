@@ -2,14 +2,22 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load .env file
-load_dotenv()
+BACKEND_ROOT = Path(__file__).resolve().parent.parent.parent
+REPO_ROOT = BACKEND_ROOT.parent
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Load .env file from backend or repo root
+load_dotenv(BACKEND_ROOT / ".env")
+load_dotenv(REPO_ROOT / ".env")
 
 # Storage configuration
-DATA_DIR = Path(os.getenv("DATA_DIR", str(PROJECT_ROOT / "data" / "raw")))
-FRONTEND_DIST_DIR = Path(os.getenv("FRONTEND_DIST_DIR", str(PROJECT_ROOT / "frontend" / "dist")))
+DATA_DIR = Path(os.getenv("DATA_DIR", str(BACKEND_ROOT / "data" / "raw")))
+
+# Resolve frontend dist path
+default_dist = REPO_ROOT / "frontend" / "dist"
+if not default_dist.exists() and (BACKEND_ROOT / "frontend" / "dist").exists():
+    default_dist = BACKEND_ROOT / "frontend" / "dist"
+
+FRONTEND_DIST_DIR = Path(os.getenv("FRONTEND_DIST_DIR", str(default_dist)))
 
 # Gemini configuration
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY", "")

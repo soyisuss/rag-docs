@@ -2,10 +2,24 @@
 .git
 .gitignore
 .venv/
+backend/.venv/
 __pycache__/
 *.pyc
 .env
+backend/.env
 .pytest_cache/
 .vscode/
+.idea/
+.gemini/
+.agents/
+.claude/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Data
 data/qdrant_storage/
-data/qdrant_storage_remote/
+backend/data/qdrant_storage/
+backend/data/qdrant_storage_remote/
